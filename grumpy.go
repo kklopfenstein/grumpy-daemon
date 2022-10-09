@@ -42,7 +42,7 @@ var (
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
-					Content: "This is a joke",
+					Content: RandomJoke(),
 				},
 			})
 		},
