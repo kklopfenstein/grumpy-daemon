@@ -35,6 +35,10 @@ var (
 			Name:        "joke",
 			Description: "Tell a joke",
 		},
+		{
+			Name:        "first",
+			Description: "First of the month",
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -45,6 +49,9 @@ var (
 					Content: RandomJoke(),
 				},
 			})
+		},
+		"first": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			FirstOfTheMonth(s, i)
 		},
 	}
 )
