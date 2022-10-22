@@ -39,6 +39,18 @@ var (
 			Name:        "first",
 			Description: "First of the month",
 		},
+		{
+			Name:        "stable",
+			Description: "Stable diffusion",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "prompt",
+					Description: "Stable diffusion prompt",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -52,6 +64,9 @@ var (
 		},
 		"first": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			FirstOfTheMonth(s, i)
+		},
+		"stable": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			Stable(s, i)
 		},
 	}
 )
