@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
+	"rawrippers.com/grumpy-daemon/game"
 )
 
 var (
@@ -51,6 +52,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "adventure",
+			Description: "play the Adventure text based game",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "command",
+					Description: "command to send to Adventure",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -67,6 +80,9 @@ var (
 		},
 		"stable": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Stable(s, i)
+		},
+		"adventure": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			game.Adventure(s, i)
 		},
 	}
 )
@@ -100,6 +116,7 @@ func main() {
 	}
 
 	defer s.Close()
+	defer game.Stop()
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	<-stop
