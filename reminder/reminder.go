@@ -146,7 +146,7 @@ func set(s *discordgo.Session, i *discordgo.InteractionCreate) string {
 	write()
 	mu.Unlock()
 
-	return fmt.Sprintf("Ok! I'll be posting '%s' on %s", event.Message, event.When)
+	return fmt.Sprintf("<@%s> set a reminder. Use /list to see reminders.", i.Member.User.ID)
 }
 
 func buildEvent(message string, when string, channelId string) (*event, error) {
