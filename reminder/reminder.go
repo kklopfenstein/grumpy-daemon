@@ -88,11 +88,6 @@ func list(i *discordgo.InteractionCreate) string {
 
 	mu.Lock()
 
-	if len(events) == 0 {
-		mu.Unlock()
-		return "no upcoming events"
-	}
-
 	for _, event := range events {
 		if event.ChannelId == i.ChannelID {
 			eventsResponse = fmt.Sprintf("%s\n%s\t\t%s", eventsResponse, event.When, event.Message)
@@ -100,6 +95,10 @@ func list(i *discordgo.InteractionCreate) string {
 	}
 
 	mu.Unlock()
+
+	if len(eventsResponse) == 0 {
+		return "no upcoming events"
+	}
 
 	return eventsResponse
 }
