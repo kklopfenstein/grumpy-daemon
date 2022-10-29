@@ -9,6 +9,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"rawrippers.com/grumpy-daemon/game"
 	"rawrippers.com/grumpy-daemon/reminder"
+	"rawrippers.com/grumpy-daemon/stable"
 )
 
 var (
@@ -50,6 +51,43 @@ var (
 					Name:        "prompt",
 					Description: "Stable diffusion prompt",
 					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "width",
+					Description: "width",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "height",
+					Description: "height",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "num_outputs",
+					Description: "number of images",
+					Required:    false,
+					MaxValue:    4,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionNumber,
+					Name:        "guidance_scale",
+					Description: "guidance scale",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionNumber,
+					Name:        "prompt_strength",
+					Description: "prompt strength",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "num_inference_steps",
+					Description: "number of inference steps",
+					Required:    false,
 				},
 			},
 		},
@@ -102,7 +140,7 @@ var (
 			FirstOfTheMonth(s, i)
 		},
 		"stable": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			Stable(s, i)
+			stable.Stable(s, i)
 		},
 		"adventure": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			game.Adventure(s, i)
