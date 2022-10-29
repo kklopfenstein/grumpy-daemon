@@ -69,7 +69,7 @@ func adventureExecute(s *discordgo.Session, i *discordgo.InteractionCreate) stri
 
 func Stop() {
 	mu.Lock()
-	if adventure.started {
+	if adventure != nil && adventure.started {
 		adventure.Stop()
 	}
 	mu.Unlock()

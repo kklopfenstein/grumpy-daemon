@@ -8,6 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"rawrippers.com/grumpy-daemon/game"
+	"rawrippers.com/grumpy-daemon/reminder"
 )
 
 var (
@@ -64,6 +65,28 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "reminder",
+			Description: "set a channel reminder",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "message",
+					Description: "message to post",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "when",
+					Description: "e.g. every tuesday at 8 PM",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "list",
+			Description: "list all reminders",
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -83,6 +106,12 @@ var (
 		},
 		"adventure": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			game.Adventure(s, i)
+		},
+		"reminder": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			reminder.SetReminder(s, i)
+		},
+		"list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			reminder.ListReminders(s, i)
 		},
 	}
 )
@@ -114,6 +143,8 @@ func main() {
 		}
 		registeredCommands[i] = cmd
 	}
+
+	go reminder.Poll(s)
 
 	defer s.Close()
 	defer game.Stop()
