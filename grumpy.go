@@ -150,6 +150,30 @@ var (
 			Name:        "list_responses",
 			Description: "list all channel responses",
 		},
+		{
+			Name:        "delete_reminder",
+			Description: "delete a reminder",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "message",
+					Description: "message to delete",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "delete_response",
+			Description: "delete a response",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "search",
+					Description: "message to delete (by search)",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -176,6 +200,12 @@ var (
 		},
 		"list_responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			response.ListResponses(s, i)
+		},
+		"delete_response": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			response.DeleteResponse(s, i)
+		},
+		"delete_reminder": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			reminder.DeleteReminder(s, i)
 		},
 	}
 )

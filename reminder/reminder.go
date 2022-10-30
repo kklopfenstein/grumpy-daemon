@@ -79,6 +79,57 @@ func Poll(s *discordgo.Session) {
 	}
 }
 
+func DeleteReminder(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: delete(s, i),
+		},
+	})
+}
+
+func delete(s *discordgo.Session, i *discordgo.InteractionCreate) string {
+	if i.Member == nil || i.Member.User == nil {
+		return "Who are you?"
+	}
+
+	if len(i.ChannelID) == 0 {
+		return "Where is this coming from?"
+	}
+
+	options := i.ApplicationCommandData().Options
+
+	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+	for _, opt := range options {
+		optionMap[opt.Name] = opt
+	}
+
+	var message string
+
+	if option, ok := optionMap["message"]; ok {
+		message = option.StringValue()
+	} else {
+		return "Message is required."
+	}
+
+	deleted := false
+	mu.Lock()
+	for index, r := range events {
+		if r.ChannelId == i.ChannelID && r.Message == message {
+			events[index] = events[len(events)-1]
+			events = events[:len(events)-1]
+			deleted = true
+		}
+	}
+	mu.Unlock()
+
+	if deleted {
+		return fmt.Sprintf("<@%s> deleted reminder `%s`.", i.Member.User.ID, message)
+	} else {
+		return fmt.Sprintf("Could not find reminder `%s` to deleted.", message)
+	}
+}
+
 func list(i *discordgo.InteractionCreate) string {
 	if len(i.ChannelID) == 0 {
 		return "Where is this coming from?"
@@ -145,7 +196,7 @@ func set(s *discordgo.Session, i *discordgo.InteractionCreate) string {
 	write()
 	mu.Unlock()
 
-	return fmt.Sprintf("<@%s> set a reminder. Use /list_reminders to see reminders.", i.Member.User.ID)
+	return fmt.Sprintf("<@%s> set a reminder `%s` at `%s`. Use /list_reminders to see reminders.", i.Member.User.ID, message, when)
 }
 
 func buildEvent(message string, when string, channelId string) (*event, error) {

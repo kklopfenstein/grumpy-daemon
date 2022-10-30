@@ -62,6 +62,57 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	mu.Unlock()
 }
 
+func DeleteResponse(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: delete(s, i),
+		},
+	})
+}
+
+func delete(s *discordgo.Session, i *discordgo.InteractionCreate) string {
+	if i.Member == nil || i.Member.User == nil {
+		return "Who are you?"
+	}
+
+	if len(i.ChannelID) == 0 {
+		return "Where is this coming from?"
+	}
+
+	options := i.ApplicationCommandData().Options
+
+	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+	for _, opt := range options {
+		optionMap[opt.Name] = opt
+	}
+
+	var search string
+
+	if option, ok := optionMap["search"]; ok {
+		search = option.StringValue()
+	} else {
+		return "search is required."
+	}
+
+	deleted := false
+	mu.Lock()
+	for index, r := range responses {
+		if r.ChannelId == i.ChannelID && r.Search == search {
+			responses[index] = responses[len(responses)-1]
+			responses = responses[:len(responses)-1]
+			deleted = true
+		}
+	}
+	mu.Unlock()
+
+	if deleted {
+		return fmt.Sprintf("<@%s> deleted response `%s`.", i.Member.User.ID, search)
+	} else {
+		return fmt.Sprintf("Could not find response `%s` to delete.", search)
+	}
+}
+
 func list(i *discordgo.InteractionCreate) string {
 	if len(i.ChannelID) == 0 {
 		return "Where is this coming from?"
@@ -128,7 +179,7 @@ func set(s *discordgo.Session, i *discordgo.InteractionCreate) string {
 	write()
 	mu.Unlock()
 
-	return fmt.Sprintf("<@%s> set a response. Use /list_responses to see responses.", i.Member.User.ID)
+	return fmt.Sprintf("<@%s> set a response `%s` to `%s`. Use /list_responses to see responses.", i.Member.User.ID, message, search)
 }
 
 func write() {
