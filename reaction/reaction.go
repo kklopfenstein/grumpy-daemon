@@ -56,7 +56,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	mu.Lock()
 	for _, r := range reactions {
-		if r.ChannelId == m.ChannelID && strings.Contains(m.Content, r.Search) {
+		if r.ChannelId == m.ChannelID && strings.Contains(strings.ToLower(m.Content), strings.ToLower(r.Search)) {
 			reg, _ := regexp.Compile("<(:.+:[0-9]+)>")
 			customEmojis := reg.FindAllString(r.EmojiID, -1)
 			for _, customEmoji := range customEmojis {
