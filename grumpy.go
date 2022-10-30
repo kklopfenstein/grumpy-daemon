@@ -10,6 +10,7 @@ import (
 	"rawrippers.com/grumpy-daemon/first"
 	"rawrippers.com/grumpy-daemon/game"
 	"rawrippers.com/grumpy-daemon/joke"
+	"rawrippers.com/grumpy-daemon/reaction"
 	"rawrippers.com/grumpy-daemon/reminder"
 	"rawrippers.com/grumpy-daemon/response"
 	"rawrippers.com/grumpy-daemon/stable"
@@ -174,6 +175,40 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "reaction",
+			Description: "set a channel message reaction",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "emoji",
+					Description: "emoji reaction",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "search",
+					Description: "e.g. search that will trigger reaction",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "list_reactions",
+			Description: "list all channel reactions",
+		},
+		{
+			Name:        "delete_reaction",
+			Description: "delete a reaction",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "search",
+					Description: "reaction to delete (by search)",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -207,6 +242,15 @@ var (
 		"delete_reminder": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			reminder.DeleteReminder(s, i)
 		},
+		"reaction": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			reaction.SetReaction(s, i)
+		},
+		"list_reactions": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			reaction.ListReactions(s, i)
+		},
+		"delete_reaction": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			reaction.DeleteReaction(s, i)
+		},
 	}
 )
 
@@ -221,11 +265,13 @@ func init() {
 func main() {
 	go reminder.Poll(s)
 	go response.Load()
+	go reaction.Load()
 
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 	s.AddHandler(response.MessageCreate)
+	s.AddHandler(reaction.MessageCreate)
 	err := s.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
