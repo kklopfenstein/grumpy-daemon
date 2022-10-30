@@ -100,7 +100,7 @@ func list(i *discordgo.InteractionCreate) string {
 		return "no upcoming events"
 	}
 
-	return eventsResponse
+	return fmt.Sprintf("```%s```", eventsResponse)
 }
 
 func set(s *discordgo.Session, i *discordgo.InteractionCreate) string {
@@ -145,7 +145,7 @@ func set(s *discordgo.Session, i *discordgo.InteractionCreate) string {
 	write()
 	mu.Unlock()
 
-	return fmt.Sprintf("<@%s> set a reminder. Use /list to see reminders.", i.Member.User.ID)
+	return fmt.Sprintf("<@%s> set a reminder. Use /list_reminders to see reminders.", i.Member.User.ID)
 }
 
 func buildEvent(message string, when string, channelId string) (*event, error) {

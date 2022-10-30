@@ -9,6 +9,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"rawrippers.com/grumpy-daemon/game"
 	"rawrippers.com/grumpy-daemon/reminder"
+	"rawrippers.com/grumpy-daemon/response"
 	"rawrippers.com/grumpy-daemon/stable"
 )
 
@@ -116,14 +117,36 @@ var (
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "when",
-					Description: "e.g. every tuesday at 8 PM",
+					Description: "e.g. 2022-10-29 08:43 -0400",
 					Required:    true,
 				},
 			},
 		},
 		{
-			Name:        "list",
-			Description: "list all reminders",
+			Name:        "response",
+			Description: "set a channel response",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "message",
+					Description: "message to post",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "search",
+					Description: "e.g. search that will trigger response",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "list_reminders",
+			Description: "list all channel reminders",
+		},
+		{
+			Name:        "list_responses",
+			Description: "list all channel responses",
 		},
 	}
 
@@ -148,8 +171,14 @@ var (
 		"reminder": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			reminder.SetReminder(s, i)
 		},
-		"list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"list_reminders": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			reminder.ListReminders(s, i)
+		},
+		"response": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			response.SetResponse(s, i)
+		},
+		"list_responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			response.ListResponses(s, i)
 		},
 	}
 )
@@ -163,9 +192,13 @@ func init() {
 }
 
 func main() {
+	go reminder.Poll(s)
+	go response.Load()
+
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
+	s.AddHandler(response.MessageCreate)
 	err := s.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
@@ -181,8 +214,6 @@ func main() {
 		}
 		registeredCommands[i] = cmd
 	}
-
-	go reminder.Poll(s)
 
 	defer s.Close()
 	defer game.Stop()
