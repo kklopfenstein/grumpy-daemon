@@ -56,7 +56,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	mu.Lock()
 	for _, r := range responses {
 		if r.ChannelId == m.ChannelID && strings.Contains(m.Content, r.Search) {
-			s.ChannelMessageSend(m.ChannelID, r.Message)
+			s.ChannelMessageSendReply(m.ChannelID, r.Message, m.Reference())
 		}
 	}
 	mu.Unlock()
