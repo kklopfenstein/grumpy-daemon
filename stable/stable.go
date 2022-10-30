@@ -76,7 +76,7 @@ func StableGet(s *discordgo.Session, i *discordgo.InteractionCreate) string {
 		return err.Error()
 	}
 
-	go runStable(s, username, channelId, input)
+	go runStable(s, username, channelId, input, i.Interaction)
 	return fmt.Sprintf("Buildin' an image for \"%s\"", input.Prompt)
 }
 
@@ -128,13 +128,17 @@ func createInputFromArgs(optionMap map[string]*discordgo.ApplicationCommandInter
 	return &input, nil
 }
 
-func runStable(s *discordgo.Session, username string, channelId string, input *Input) {
+func runStable(s *discordgo.Session, username string, channelId string, input *Input, interaction *discordgo.Interaction) {
 	image, err := callStableApi(input)
 
 	if err != nil {
-		s.ChannelMessageSend(channelId, err.Error())
+		s.FollowupMessageCreate(interaction, false, &discordgo.WebhookParams{
+			Content: err.Error(),
+		})
 	} else {
-		s.ChannelMessageSend(channelId, image)
+		s.FollowupMessageCreate(interaction, false, &discordgo.WebhookParams{
+			Content: image,
+		})
 	}
 }
 

@@ -66,9 +66,17 @@ func Poll(s *discordgo.Session) {
 			}
 		}
 
-		for i := range toRemove {
-			events[i] = events[len(events)-1]
-			events = events[:len(events)-1]
+		newIndexMap := make(map[int]int)
+		for _, removeIndex := range toRemove {
+			if newIndex, ok := newIndexMap[removeIndex]; ok {
+				events[newIndex] = events[len(events)-1]
+				newIndexMap[len(events)-1] = newIndex
+				events = events[:len(events)-1]
+			} else {
+				events[removeIndex] = events[len(events)-1]
+				newIndexMap[len(events)-1] = removeIndex
+				events = events[:len(events)-1]
+			}
 		}
 
 		write()
