@@ -7,7 +7,9 @@ import (
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
+	"rawrippers.com/grumpy-daemon/first"
 	"rawrippers.com/grumpy-daemon/game"
+	"rawrippers.com/grumpy-daemon/joke"
 	"rawrippers.com/grumpy-daemon/reminder"
 	"rawrippers.com/grumpy-daemon/response"
 	"rawrippers.com/grumpy-daemon/stable"
@@ -152,15 +154,10 @@ var (
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"joke": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: RandomJoke(),
-				},
-			})
+			joke.Joke(s, i)
 		},
 		"first": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			FirstOfTheMonth(s, i)
+			first.FirstOfTheMonth(s, i)
 		},
 		"stable": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			stable.Stable(s, i)

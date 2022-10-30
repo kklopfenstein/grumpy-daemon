@@ -1,4 +1,4 @@
-package main
+package joke
 
 import (
 	"bufio"
@@ -6,9 +6,20 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
-func RandomJoke() string {
+func Joke(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: randomJoke(),
+		},
+	})
+}
+
+func randomJoke() string {
 	file, err := os.Open("data/jokes.txt")
 	if err != nil {
 		log.Fatal(err)
