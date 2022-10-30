@@ -210,7 +210,7 @@ func read() {
 	log.Printf("loaded %d events", len(events))
 
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 }
 
@@ -229,6 +229,6 @@ func createDirs() {
 	err := os.MkdirAll(path, os.ModePerm)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 }
