@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/bwmarrin/discordgo"
+	"rawrippers.com/grumpy-daemon/utils"
 )
 
 type reaction struct {
@@ -56,7 +57,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	mu.Lock()
 	for _, r := range reactions {
-		if r.ChannelId == m.ChannelID && strings.Contains(strings.ToLower(m.Content), strings.ToLower(r.Search)) {
+		if r.ChannelId == m.ChannelID && utils.ContainsSearch(strings.ToLower(m.Content), strings.ToLower(r.Search)) {
 			reg, _ := regexp.Compile("<(:.+:[0-9]+)>")
 			customEmojis := reg.FindAllString(r.EmojiID, -1)
 			for _, customEmoji := range customEmojis {

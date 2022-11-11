@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/bwmarrin/discordgo"
+	"rawrippers.com/grumpy-daemon/utils"
 )
 
 type response struct {
@@ -55,7 +56,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	mu.Lock()
 	for _, r := range responses {
-		if r.ChannelId == m.ChannelID && strings.Contains(strings.ToLower(m.Content), strings.ToLower(r.Search)) {
+		if r.ChannelId == m.ChannelID && utils.ContainsSearch(strings.ToLower(m.Content), strings.ToLower(r.Search)) {
 			s.ChannelMessageSendReply(m.ChannelID, r.Message, m.Reference())
 		}
 	}
